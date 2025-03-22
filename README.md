@@ -26,11 +26,11 @@ Video streaming applications require constant monitoring of network conditions t
 ## Features
 
 - **Multiple Model Architectures:**
+  - Linear Regressor (Baseline)
   - LSTM
   - GRU
   - Transformer
-  - Linear Regressor (Baseline)
-
+ 
 - **Experimentation Pipelines:**
   Two experiment runners (experiment_runner.py and experiment_runner_v2.py) automate hyperparameter grid search and log results into CSV files for analysis.
 
@@ -169,8 +169,8 @@ python3 timeseries_forecasting_models_v2.py --data_folder ./augmented_dataset --
 ## Models
 
 Pre-trained model files included:
-- **GRU:** model_gru.h5
 - **Linear Regressor:** model_linear.h5
+- **GRU:** model_gru.h5
 - **LSTM:** model_lstm.h5
 - **Transformer:** model_transformer.h5
 
@@ -193,16 +193,6 @@ There are two versions of the model definition scripts:
   - Also supports hyperparameter tuning via Keras Tuner.
   
 Choose the version that best suits your experimental needs or to compare performance differences.
-
-## Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/your-feature`).
-3. Commit your changes.
-4. Push your branch and open a Pull Request.
-
-Ensure your code follows the project’s style and includes relevant tests.
 
 ## License
 
