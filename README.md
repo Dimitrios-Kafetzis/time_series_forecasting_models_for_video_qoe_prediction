@@ -1,6 +1,6 @@
 # Time Series Forecasting Models for Video QoE Prediction
 
-This repository provides a comprehensive framework for forecasting video Quality of Experience (QoE) based on network and mobility metrics. It includes several deep learning architectures (LSTM, GRU, Transformer) alongside utilities for dataset generation, hyperparameter tuning, model evaluation, and inference.
+This repository provides a comprehensive framework for forecasting video Quality of Experience (QoE) based on network and mobility metrics. It includes several deep learning architectures (Linear Regressor, DNN, LSTM, GRU, Transformer) alongside utilities for dataset generation, hyperparameter tuning, model evaluation, and inference.
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -10,6 +10,8 @@ This repository provides a comprehensive framework for forecasting video Quality
 - [Usage](#usage)
   - [Generating Mock Datasets](#generating-mock-datasets)
   - [Running Experiments](#running-experiments)
+  - [Training All Models](#training-all-models)
+  - [Testing All Models](#testing-all-models)
   - [Inference](#inference)
   - [Testing and Evaluation](#testing-and-evaluation)
   - [Automated Hyperparameter Tuning](#automated-hyperparameter-tuning)
@@ -27,12 +29,19 @@ Video streaming applications require constant monitoring of network conditions t
 
 - **Multiple Model Architectures:**
   - Linear Regressor (Baseline)
-  - LSTM
-  - GRU
+  - Simple DNN (Deep Neural Network)
+  - LSTM (with and without self-attention)
+  - GRU (with and without self-attention)
   - Transformer
  
 - **Experimentation Pipelines:**
   Two experiment runners (experiment_runner.py and experiment_runner_v2.py) automate hyperparameter grid search and log results into CSV files for analysis.
+
+- **Automated Model Training:**
+  The train_all_models_v5.sh script automates training of multiple model variants with different configurations.
+
+- **Comprehensive Model Evaluation:**
+  The test_all_models.sh script evaluates all trained models and generates comparative performance reports.
 
 - **Synthetic Dataset Generation:**
   The generate_mock_dataset.py script creates JSON datasets in three modes:
@@ -47,7 +56,7 @@ Video streaming applications require constant monitoring of network conditions t
   The test_models.py script evaluates models using regression metrics (MSE, MAE, R²) and measures inference latency, with options to simulate performance on different hardware (e.g., Xeon, Jetson).
 
 - **Automated Hyperparameter Tuning:**
-  The project supports automated tuning for LSTM, GRU, and Transformer models via Keras Tuner.
+  The project supports automated tuning for all model types via Keras Tuner.
 
 ## Directory Structure
 
@@ -60,11 +69,36 @@ The repository is organized as follows:
 ├── test_models.py                    # Script for evaluating models and measuring inference latency  
 ├── timeseries_forecasting_models_v2.py  # Model definitions, training, and hyperparameter tuning (v2)  
 ├── timeseries_forecasting_models_v3.py  # Updated model definitions and training pipeline (v3)  
-├── model_gru.h5                      # Pre-trained GRU model  
-├── model_linear.h5                   # Pre-trained Linear Regressor model  
-├── model_lstm.h5                     # Pre-trained LSTM model  
-├── model_transformer.h5              # Pre-trained Transformer model  
-├── scaler.save                       # Saved scaler for feature normalization  
+├── timeseries_forecasting_models_v5.py  # Latest model implementations with Linear, DNN, and self-attention models (v5)  
+├── train_all_models_v5.sh            # Shell script to automate training of all model variants  
+├── test_all_models.sh                # Shell script to test all models and generate comparison reports  
+├── forecasting_models_v5/            # Directory containing trained model files  
+│   ├── model_evaluation_report.txt   # Comprehensive model evaluation report  
+│   ├── model_evaluation_results.csv  # CSV with evaluation metrics for all models  
+│   ├── linear_basic.h5               # Pre-trained Linear model (basic)  
+│   ├── linear_with_l1_reg.h5         # Pre-trained Linear model with L1 regularization  
+│   ├── linear_with_l2_reg.h5         # Pre-trained Linear model with L2 regularization  
+│   ├── linear_with_elastic_net.h5    # Pre-trained Linear model with ElasticNet regularization  
+│   ├── dnn_basic.h5                  # Pre-trained DNN model (basic)  
+│   ├── dnn_deep.h5                   # Pre-trained DNN with deeper architecture  
+│   ├── dnn_with_elu.h5               # Pre-trained DNN with ELU activation  
+│   ├── dnn_with_high_dropout.h5      # Pre-trained DNN with higher dropout  
+│   ├── lstm_basic.h5                 # Pre-trained LSTM with self-attention  
+│   ├── lstm_deep.h5                  # Pre-trained LSTM with multiple layers  
+│   ├── lstm_wide.h5                  # Pre-trained LSTM with more hidden units  
+│   ├── lstm_bidirectional.h5         # Pre-trained bidirectional LSTM  
+│   ├── lstm_with_stats.h5            # Pre-trained LSTM with statistical features  
+│   ├── gru_basic.h5                  # Pre-trained GRU with self-attention  
+│   ├── gru_deep.h5                   # Pre-trained GRU with multiple layers  
+│   ├── gru_wide.h5                   # Pre-trained GRU with more hidden units  
+│   ├── gru_bidirectional.h5          # Pre-trained bidirectional GRU  
+│   ├── gru_with_stats.h5             # Pre-trained GRU with statistical features  
+│   ├── transformer_basic.h5          # Pre-trained Transformer (basic)  
+│   ├── transformer_more_heads.h5     # Pre-trained Transformer with more attention heads  
+│   ├── transformer_large_ff.h5       # Pre-trained Transformer with larger feed-forward dim  
+│   ├── transformer_low_dropout.h5    # Pre-trained Transformer with low dropout  
+│   ├── transformer_with_stats.h5     # Pre-trained Transformer with statistical features  
+│   └── scaler.save                   # Saved scaler for feature normalization  
 └── inference_inputs/                 # Folder containing JSON files for inference (e.g., 20250204123000.json)
 
 ## Installation
@@ -72,15 +106,19 @@ The repository is organized as follows:
 1. **System Requirements:**
    - Ubuntu 20.04+ (or compatible)
    - Python 3.8+
+   - TensorFlow 2.x
+   - CUDA-compatible GPU recommended for faster training
 
 2. **Set Up a Virtual Environment (Recommended):**
 ```bash
-python3 -m venv venv source venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 ```
 
 3. **Install Dependencies:**
 ```bash
-pip install --upgrade pip pip install numpy pandas tensorflow joblib matplotlib scikit-learn keras_tuner
+pip install --upgrade pip
+pip install numpy pandas tensorflow joblib matplotlib scikit-learn keras_tuner
 ```
 
 ## Usage
@@ -125,60 +163,105 @@ python3 experiment_runner_v2.py --data_folder ./augmented_dataset --epochs 20 --
 
 Both scripts iterate over a grid of hyperparameter configurations, log the results to CSV files, and analyze them to determine the best configuration based on test loss.
 
+### Training All Models
+
+To train a comprehensive set of model variants with different architectures and configurations, use the train_all_models_v5.sh script:
+
+```bash
+./train_all_models_v5.sh
+```
+
+This script trains 21 different model configurations:
+- 4 Linear Regressor variants (basic, L1 regularization, L2 regularization, ElasticNet)
+- 4 Simple DNN variants (basic, deep, with ELU activation, with high dropout)
+- 5 LSTM variants (basic, deep, wide, bidirectional, with stats)
+- 5 GRU variants (basic, deep, wide, bidirectional, with stats)
+- 5 Transformer variants (basic, more heads, large feed-forward, low dropout, with stats)
+
+All models are saved to the forecasting_models_v5 directory with appropriate naming conventions.
+
+### Testing All Models
+
+To evaluate and compare all trained models, use the test_all_models.sh script:
+
+```bash
+./test_all_models.sh
+```
+
+This script:
+1. Tests each model in the forecasting_models_v5 directory
+2. Computes evaluation metrics (MSE, MAE, R² Score)
+3. Measures inference latency for each model
+4. Generates a comprehensive evaluation report (model_evaluation_report.txt)
+5. Creates a CSV file with all results (model_evaluation_results.csv)
+
+The report includes model rankings by each metric and identifies the best overall model based on a weighted combination of all metrics.
+
 ### Inference
 
 Run the inference script to predict QoE for new input data:
 
 - **Standard Mode:**
 ```bash
-python3 run_inference.py --inference_file ./inference_inputs/20250204123000.json --data_folder ./mock_dataset --seq_length 5 --model_file model_transformer.h5 --scaler_file scaler.save
+python3 run_inference.py --inference_file ./inference_inputs/20250204123000.json --data_folder ./mock_dataset --seq_length 5 --model_file forecasting_models_v5/lstm_with_stats.h5 --scaler_file forecasting_models_v5/scaler.save
 ```
 
-- **Augmented Mode:**
+- **Augmented Mode with Statistical Features:**
 ```bash
-python3 run_inference.py --inference_file ./inference_inputs/20250204123000.json --data_folder ./augmented_dataset --seq_length 5 --model_file model_transformer.h5 --scaler_file scaler.save --augmented
+python3 run_inference.py --inference_file ./inference_inputs/20250204123000.json --data_folder ./augmented_dataset --seq_length 5 --model_file forecasting_models_v5/lstm_with_stats.h5 --scaler_file forecasting_models_v5/scaler.save --augmented --use_stats
 ```
 
 ### Testing and Evaluation
 
 Evaluate your trained models using:
 ```bash
-python3 test_models.py --data_folder <folder_path> --model_file <model_file> --seq_length 5 --scaler_file scaler.save [--augmented] [--use_stats] [--simulate_device <device>]
+python3 test_models.py --data_folder <folder_path> --model_file <model_file> --seq_length 5 --scaler_file forecasting_models_v5/scaler.save [--augmented] [--use_stats] [--simulate_device <device>]
 ```
 
 **Example:**
 ```bash
-python3 test_models.py --data_folder ./augmented_dataset --model_file model_gru.h5 --seq_length 5 --scaler_file scaler.save --augmented --use_stats --simulate_device jetson
+python3 test_models.py --data_folder ./augmented_dataset --model_file forecasting_models_v5/gru_with_stats.h5 --seq_length 5 --scaler_file forecasting_models_v5/scaler.save --augmented --use_stats --simulate_device jetson
 ```
 
 This script reports evaluation metrics such as MSE, MAE, R², and measures inference latency.
 
 ### Automated Hyperparameter Tuning
 
-Both timeseries_forecasting_models_v2.py and timeseries_forecasting_models_v3.py support automated hyperparameter tuning via Keras Tuner.
+The timeseries_forecasting_models_v5.py supports automated hyperparameter tuning for all model types via Keras Tuner:
 
-For example:
 ```bash
-python3 timeseries_forecasting_models_v2.py --data_folder ./mock_dataset --model_type lstm --seq_length 5 --epochs 20 --batch_size 16 --tune --max_trials 10 --tune_epochs 20
+python3 timeseries_forecasting_models_v5.py --data_folder ./augmented_dataset --model_type lstm --seq_length 5 --epochs 20 --batch_size 16 --augmented --use_stats --tune --max_trials 10 --tune_epochs 20
 ```
-Or with augmented datasets:
-```bash
-python3 timeseries_forecasting_models_v2.py --data_folder ./augmented_dataset --model_type transformer --seq_length 5 --epochs 20 --batch_size 16 --augmented --use_stats --tune --max_trials 10 --tune_epochs 20
-```
+
+This allows you to find optimal hyperparameters for any model type (linear, dnn, lstm, gru, transformer).
 
 ## Models
 
-Pre-trained model files included:
-- **Linear Regressor:** model_linear.h5
-- **GRU:** model_gru.h5
-- **LSTM:** model_lstm.h5
-- **Transformer:** model_transformer.h5
+The latest version (v5) includes the following model types:
 
-These can be used directly for inference or serve as starting points for further training.
+1. **Linear Regressor Models**: 
+   - Basic implementation flattens input sequences and applies a single Dense layer
+   - Variants with L1, L2, and ElasticNet regularization
+
+2. **Simple DNN Models**:
+   - Flatten input sequence and apply multiple Dense layers
+   - Configurable activation functions, depth, and dropout rates
+
+3. **LSTM Models with Self-Attention**:
+   - Replace traditional pooling with self-attention mechanism
+   - Variants with different depths, widths, and bidirectional configurations
+
+4. **GRU Models with Self-Attention**:
+   - Similar to LSTM but using GRU cells
+   - Also implements self-attention for temporal feature aggregation
+
+5. **Transformer Models**:
+   - Implements transformer architecture for sequence modeling
+   - Configurable attention heads, feed-forward dimensions, and dropout
 
 ## Distinction Between Timeseries Forecasting Model Versions
 
-There are two versions of the model definition scripts:
+There are four versions of the model definition scripts:
 
 - **timeseries_forecasting_models_v2.py:**
   - Implements LSTM, GRU, Transformer, and a Linear Regressor baseline.
@@ -191,6 +274,22 @@ There are two versions of the model definition scripts:
   - Implements architectural enhancements such as forcing all recurrent layers to output sequences and applying GlobalAveragePooling1D to aggregate temporal information.
   - Uses the log-cosh loss function for potentially smoother convergence.
   - Also supports hyperparameter tuning via Keras Tuner.
+
+- **timeseries_forecasting_models_v4.py:**
+  - Builds upon v3 by replacing GlobalAveragePooling1D with a custom SelfAttention mechanism in the LSTM and GRU models.
+  - Implements the SelfAttention layer class for enhanced temporal feature aggregation.
+  - Maintains the three core model architectures: LSTM, GRU, and Transformer.
+  - Uses log-cosh loss function and supports automated hyperparameter tuning.
+  - Allows for bidirectional RNNs combined with the self-attention mechanism.
+  
+- **timeseries_forecasting_models_v5.py:**
+  - Most comprehensive implementation with five model types: Linear Regressor, Simple DNN, LSTM, GRU, and Transformer.
+  - Extends the SelfAttention approach from v4 to all recurrent models.
+  - Adds multiple linear regressor variants with different regularization strategies (L1, L2, ElasticNet).
+  - Implements configurable DNN models with various architectures, activations, and dropout rates.
+  - Uses log-cosh loss for most models (except linear regressors which use MSE).
+  - Enhanced hyperparameter tuning with model-specific parameter spaces.
+  - Full support for statistical features with the `--use_stats` flag.
   
 Choose the version that best suits your experimental needs or to compare performance differences.
 
