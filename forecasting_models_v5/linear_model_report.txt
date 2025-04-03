@@ -1,0 +1,21 @@
+=======================================================
+        LINEAR MODEL EVALUATION REPORT                 
+        Generated on Πεμ 03 Απρ 2025 05:21:35 μμ EEST                           
+=======================================================
+
+Model: linear_basic.h5
+Dataset: /home/dimitris/Impact-xG_prediction_model/real_dataset
+Sequence Length: 5
+
+Model Type: Linear Regressor
+MSE: 0.1496
+MAE: 0.3215
+R² Score: -0.6379
+Inference Latency: 61.54 ms
+
+Feature Importance:
+Feature importance data is available in /home/dimitris/Impact-xG_prediction_model/forecasting_models_v5/feature_importance/linear_basic.h5.importance.json
+(Install 'jq' for detailed feature display in this report)
+
+=======================================================
+End of Report

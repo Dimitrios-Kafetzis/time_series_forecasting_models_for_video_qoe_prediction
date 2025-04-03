@@ -2,10 +2,11 @@
 # test_all_models.sh
 # Script to run testing on all models in the forecasting_models_v5 directory
 # and generate a comprehensive evaluation report
+# UPDATED: Now uses the new dataset format by default (10-second windows with 2-second intervals)
 
 # Define paths
 MODELS_DIR=~/Impact-xG_prediction_model/forecasting_models_v5
-DATA_FOLDER="./augmented_dataset"  # Change this to your actual dataset path
+DATA_FOLDER="./real_dataset"  # Change this to your actual dataset path
 SCALER_FILE="$MODELS_DIR/scaler.save"
 SEQ_LENGTH=5
 REPORT_FILE="$MODELS_DIR/model_evaluation_report.txt"
@@ -32,6 +33,7 @@ echo "" >> "$REPORT_FILE"
 echo "Models Directory: $MODELS_DIR" >> "$REPORT_FILE"
 echo "Dataset: $DATA_FOLDER" >> "$REPORT_FILE"
 echo "Sequence Length: $SEQ_LENGTH" >> "$REPORT_FILE"
+echo "Dataset Format: New format (10-second windows with 2-second intervals)" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
 echo "=======================================================" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
@@ -132,6 +134,7 @@ for model_file in "$MODELS_DIR"/*.h5; do
     temp_log=$(mktemp)
     
     # Run the test with --use_stats since our scaler requires it
+    # Use the augmented flag for the new format (now default)
     python3 test_models.py \
         --data_folder "$DATA_FOLDER" \
         --model_file "$model_file" \

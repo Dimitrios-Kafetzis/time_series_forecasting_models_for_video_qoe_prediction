@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Filename: timeseries_forecasting_models.py
+Filename: timeseries_forecasting_models_v5.py
 Author: Dimitrios Kafetzis (Modified)
 Creation Date: 2025-02-04
 Description:
@@ -14,66 +14,48 @@ Description:
     The purpose is to predict the QoE (Quality of Experience) value for network data.
     The input dataset is composed of JSON files. There are two supported formats:
     
-      1. Regular:
+      1. Regular (Legacy):
          Each file corresponds to a 10-second interval and contains the fields:
              "packet_loss_rate", "jitter", "throughput", "speed", "QoE", "timestamp",
              and additional temporal features: "hour", "minute", "day_of_week".
-      2. Augmented:
-         Each file corresponds to a 5‑second window with per‑second measurements (flattened into features)
-         and an aggregated QoE. Optionally, summary statistics (mean, std, min, max) may also be added.
+      2. Augmented (Default):
+         Each file corresponds to a 10-second window with 2-second interval measurements:
+         {
+             "QoE": <float>,
+             "timestamp": <int>,
+             "<timestamp_1>": {
+                 "throughput": <float>,
+                 "packets_lost": <float>,
+                 "packet_loss_rate": <float>,
+                 "jitter": <float>,
+                 "speed": <float>
+             },
+             "<timestamp_2>": { ... },
+             ...
+         }
     
     Modifications:
+    - Default behavior is now the new dataset format with 10-second windows and 2-second intervals
+    - Updated the data loading and preprocessing functions to handle the new structure
     - Added Linear Regressor and Simple DNN models as baseline approaches
     - Replaced GlobalAveragePooling1D with self-attention mechanism in LSTM and GRU models
     - Added a SelfAttention layer class for custom implementation
     
     Usage Examples:
       1. Train a Linear Regressor model on a regular dataset:
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type linear --seq_length 5 --epochs 20 --batch_size 16
+         $ python3 timeseries_forecasting_models_v5.py --data_folder ./mock_dataset --model_type linear --seq_length 5 --epochs 20 --batch_size 16
 
-      2. Train a Simple DNN model on an augmented dataset (without extra statistics):
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./augmented_dataset --model_type dnn --seq_length 5 --epochs 20 --batch_size 16 --augmented
+      2. Train a Simple DNN model on the new augmented dataset (default format):
+         $ python3 timeseries_forecasting_models_v5.py --data_folder ./augmented_dataset --model_type dnn --seq_length 5 --epochs 20 --batch_size 16 --augmented
 
       3. Train an LSTM model with self-attention on a regular dataset:
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type lstm --seq_length 5 --epochs 20 --batch_size 16 --attention_units 128
+         $ python3 timeseries_forecasting_models_v5.py --data_folder ./mock_dataset --model_type lstm --seq_length 5 --epochs 20 --batch_size 16 --attention_units 128
 
-      4. Train a GRU model with self-attention on an augmented dataset (without extra statistics):
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./augmented_dataset --model_type gru --seq_length 5 --epochs 20 --batch_size 16 --augmented --attention_units 128
+      4. Train a GRU model with self-attention on the new augmented dataset:
+         $ python3 timeseries_forecasting_models_v5.py --data_folder ./augmented_dataset --model_type gru --seq_length 5 --epochs 20 --batch_size 16 --augmented --attention_units 128
 
-      5. Train a Transformer model on an augmented dataset and use extra statistical features:
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./augmented_dataset --model_type transformer --seq_length 5 --epochs 20 --batch_size 16 --augmented --use_stats
-
-      6. Train bidirectional LSTM with self-attention:
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type lstm --seq_length 5 --epochs 20 --batch_size 16 --bidirectional --attention_units 128
-
-      7. Automated Hyperparameter Tuning Examples (includes finding best parameters and final training):
-         
-         # Linear Regressor (regular dataset)
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type linear --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16
-
-         # Simple DNN (regular dataset)
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type dnn --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16
-         
-         # LSTM with self-attention (regular dataset)
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type lstm --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16
-         
-         # GRU with self-attention (regular dataset)
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type gru --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16
-         
-         # LSTM with self-attention (augmented dataset with statistics)
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./augmented_dataset --model_type lstm --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16 --augmented --use_stats
-         
-         # GRU with self-attention (augmented dataset with statistics)
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./augmented_dataset --model_type gru --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16 --augmented --use_stats
-         
-         # Transformer model (regular dataset)
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type transformer --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16
-         
-         # Transformer model (augmented dataset with statistics)
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./augmented_dataset --model_type transformer --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16 --augmented --use_stats
-         
-         # Bidirectional LSTM with self-attention and hyperparameter tuning
-         $ python3 timeseries_forecasting_models_v4.py --data_folder ./mock_dataset --model_type lstm --seq_length 5 --tune --max_trials 10 --tune_epochs 5 --epochs 20 --batch_size 16 --bidirectional
+      5. Train a model on legacy format data (if needed):
+         $ python3 timeseries_forecasting_models_v5.py --data_folder ./old_dataset --model_type lstm --seq_length 5 --epochs 20 --batch_size 16 --augmented --legacy_format
 """
 
 import os
@@ -118,11 +100,31 @@ def load_dataset_from_folder(folder_path):
     df = pd.DataFrame(data_sorted)
     return df
 
-def load_augmented_dataset_from_folder(folder_path, use_stats=False):
+def load_augmented_dataset_from_folder(folder_path, use_stats=False, new_format=False):
     """
     Load all JSON files from the folder (augmented format) and return a DataFrame.
-    In each JSON file, the keys that are not "QoE" or "timestamp" represent 1-second measurements.
-    These are sorted and flattened into feature columns f0, f1, ..., f19 (for 5 seconds × 4 features).
+    
+    For legacy augmented format:
+      In each JSON file, the keys that are not "QoE" or "timestamp" represent 1-second measurements.
+      These are sorted and flattened into feature columns f0, f1, ..., f19 (for 5 seconds × 4 features).
+    
+    For new augmented format:
+      Each file corresponds to a 10-second window with 2-second interval measurements:
+      {
+          "QoE": <float>,
+          "timestamp": <int>,
+          "<timestamp_1>": {
+              "throughput": <float>,
+              "packets_lost": <float>,
+              "packet_loss_rate": <float>,
+              "jitter": <float>,
+              "speed": <float>
+          },
+          "<timestamp_2>": { ... },
+          ...
+      }
+      These are flattened into feature columns f0, f1, ..., f24 (for 5 timestamps × 5 features).
+      
     If use_stats is True, additional statistics (mean, std, min, max for each feature) are computed.
     """
     data = []
@@ -131,32 +133,64 @@ def load_augmented_dataset_from_folder(folder_path, use_stats=False):
             file_path = os.path.join(folder_path, file_name)
             with open(file_path, 'r') as f:
                 json_data = json.load(f)
+            
             inner_keys = [k for k in json_data.keys() if k not in ["QoE", "timestamp"]]
             inner_keys = sorted(inner_keys)
+            
             flat_features = []
             if use_stats:
-                stats_features = {"packet_loss_rate": [], "jitter": [], "throughput": [], "speed": []}
+                # For the new format, track metrics differently
+                if new_format:
+                    stats_features = {
+                        "packet_loss_rate": [], "jitter": [], "throughput": [], 
+                        "speed": [], "packets_lost": []
+                    }
+                else:
+                    stats_features = {
+                        "packet_loss_rate": [], "jitter": [], "throughput": [], "speed": []
+                    }
+            
             for key in inner_keys:
                 entry = json_data[key]
-                flat_features.extend([entry["packet_loss_rate"], entry["jitter"], entry["throughput"], entry["speed"]])
-                if use_stats:
-                    stats_features["packet_loss_rate"].append(entry["packet_loss_rate"])
-                    stats_features["jitter"].append(entry["jitter"])
-                    stats_features["throughput"].append(entry["throughput"])
-                    stats_features["speed"].append(entry["speed"])
+                if new_format:
+                    # New format includes "packets_lost"
+                    flat_features.extend([
+                        entry["throughput"], entry["packets_lost"], entry["packet_loss_rate"], 
+                        entry["jitter"], entry["speed"]
+                    ])
+                    if use_stats:
+                        stats_features["throughput"].append(entry["throughput"])
+                        stats_features["packets_lost"].append(entry["packets_lost"])
+                        stats_features["packet_loss_rate"].append(entry["packet_loss_rate"])
+                        stats_features["jitter"].append(entry["jitter"])
+                        stats_features["speed"].append(entry["speed"])
+                else:
+                    # Legacy format
+                    flat_features.extend([
+                        entry["packet_loss_rate"], entry["jitter"], entry["throughput"], entry["speed"]
+                    ])
+                    if use_stats:
+                        stats_features["packet_loss_rate"].append(entry["packet_loss_rate"])
+                        stats_features["jitter"].append(entry["jitter"])
+                        stats_features["throughput"].append(entry["throughput"])
+                        stats_features["speed"].append(entry["speed"])
+            
             sample = {}
             for i, val in enumerate(flat_features):
                 sample[f"f{i}"] = val
+            
             if use_stats:
-                for feature in ["packet_loss_rate", "jitter", "throughput", "speed"]:
+                for feature in stats_features.keys():
                     arr = np.array(stats_features[feature])
                     sample[f"{feature}_mean"] = float(np.mean(arr))
                     sample[f"{feature}_std"] = float(np.std(arr))
                     sample[f"{feature}_min"] = float(np.min(arr))
                     sample[f"{feature}_max"] = float(np.max(arr))
+            
             sample["QoE"] = json_data["QoE"]
             sample["timestamp"] = json_data["timestamp"]
             data.append(sample)
+    
     data_sorted = sorted(data, key=lambda x: x["timestamp"])
     df = pd.DataFrame(data_sorted)
     return df
@@ -168,7 +202,15 @@ def preprocess_dataframe(df):
     numeric_cols = [col for col in df.columns if col != 'timestamp']
     for col in numeric_cols:
         df[col] = pd.to_numeric(df[col], errors='coerce')
-    df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y%m%d%H%M%S')
+    
+    # Handle timestamp which might be an integer or string
+    if df['timestamp'].dtype == object:
+        df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y%m%d%H%M%S')
+    else:
+        # Convert integer timestamp to string first
+        df['timestamp'] = df['timestamp'].astype(str)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y%m%d%H%M%S')
+    
     df.sort_values('timestamp', inplace=True)
     df.reset_index(drop=True, inplace=True)
     return df
@@ -497,8 +539,12 @@ def main():
     parser.add_argument("--tune_epochs", type=int, default=20, help="Number of epochs to train each trial during tuning.")
     
     # Dataset format options
-    parser.add_argument("--augmented", action="store_true", help="Indicate that the dataset is in augmented mode (each file covers 5 seconds with 1-second granularity).")
-    parser.add_argument("--use_stats", action="store_true", help="(Valid in augmented mode) Include extra statistical features from the inner 5-second window.")
+    parser.add_argument("--augmented", action="store_true", help="Indicate that the dataset is in augmented mode.")
+    parser.add_argument("--use_stats", action="store_true", help="Include extra statistical features from the augmented data.")
+    parser.add_argument("--legacy_format", action="store_true", 
+                       help="Use the legacy dataset format (5-second windows with 1-second intervals)")
+    parser.add_argument("--new_format", action="store_true", 
+                       help="DEPRECATED: New format is now the default. This flag has no effect.")
     
     args = parser.parse_args()
     
@@ -506,21 +552,30 @@ def main():
     hidden_layers = [int(x) for x in args.hidden_layers.split(',')]
     
     if args.augmented:
-        print("Loading augmented dataset from:", args.data_folder)
-        df = load_augmented_dataset_from_folder(args.data_folder, use_stats=args.use_stats)
+        print(f"Loading augmented dataset from: {args.data_folder}")
+        print(f"Using {'legacy' if args.legacy_format else 'new'} format")
+        df = load_augmented_dataset_from_folder(args.data_folder, use_stats=args.use_stats, new_format=not args.legacy_format)
         feature_cols = [col for col in df.columns if col not in ["QoE", "timestamp"]]
     else:
-        print("Loading data from:", args.data_folder)
+        print(f"Loading regular dataset from: {args.data_folder}")
         df = load_dataset_from_folder(args.data_folder)
         feature_cols = [col for col in df.columns if col not in ["QoE", "timestamp"]]
     
     df = preprocess_dataframe(df)
+    
+    # Print data info
+    print(f"Dataset shape: {df.shape}")
+    print(f"Features: {len(feature_cols)}")
+    print(f"Sample timestamp: {df['timestamp'].iloc[0]}")
+    
+    # Normalize the data
     norm_cols = feature_cols + ["QoE"]
     scaler = MinMaxScaler()
     df[norm_cols] = scaler.fit_transform(df[norm_cols])
     
     X, y = create_sequences(df, seq_length=args.seq_length, feature_cols=feature_cols, target_col='QoE')
     print("Total sequences:", X.shape[0])
+    print(f"Input shape: {X.shape}")
     
     X_train, X_test, y_train, y_test = train_test_split(X, y)
     print("Training samples:", X_train.shape[0], "Test samples:", X_test.shape[0])
@@ -687,53 +742,125 @@ def main():
     print("Saved scaler as", scaler_filename)
     
     # Inference Example:
-    if args.augmented:
+    print(f"\nPreparing sample inference example for {args.model_type.upper()} model...")
+    
+    if args.augmented and not args.legacy_format:
+        # New format (now the default for augmented mode)
+        sample_data = {}
+        base_timestamp = 20250204123000
+        
+        for i in range(5):
+            timestamp = base_timestamp + i*2
+            sample_data[str(timestamp)] = {
+                "throughput": 1200.0,
+                "packets_lost": 0.0,
+                "packet_loss_rate": 0.0,
+                "jitter": 15.0,
+                "speed": 0.0
+            }
+        
+        sample_data["timestamp"] = base_timestamp + 8
+        sample_data["QoE"] = None
+        
+        # Flatten the sample data into feature vector
+        sample_inference_record = {}
+        flat_features = []
+        
+        for key in sorted([k for k in sample_data.keys() if k not in ["QoE", "timestamp"]]):
+            entry = sample_data[key]
+            flat_features.extend([
+                entry["throughput"], entry["packets_lost"], entry["packet_loss_rate"], 
+                entry["jitter"], entry["speed"]
+            ])
+        
+        for i, val in enumerate(flat_features):
+            sample_inference_record[f"f{i}"] = val
+            
+        if args.use_stats:
+            # Add statistics
+            sample_inference_record["throughput_mean"] = 1200.0
+            sample_inference_record["throughput_std"] = 0.0
+            sample_inference_record["throughput_min"] = 1200.0
+            sample_inference_record["throughput_max"] = 1200.0
+            
+            sample_inference_record["packets_lost_mean"] = 0.0
+            sample_inference_record["packets_lost_std"] = 0.0
+            sample_inference_record["packets_lost_min"] = 0.0
+            sample_inference_record["packets_lost_max"] = 0.0
+            
+            sample_inference_record["packet_loss_rate_mean"] = 0.0
+            sample_inference_record["packet_loss_rate_std"] = 0.0
+            sample_inference_record["packet_loss_rate_min"] = 0.0
+            sample_inference_record["packet_loss_rate_max"] = 0.0
+            
+            sample_inference_record["jitter_mean"] = 15.0
+            sample_inference_record["jitter_std"] = 0.0
+            sample_inference_record["jitter_min"] = 15.0
+            sample_inference_record["jitter_max"] = 15.0
+            
+            sample_inference_record["speed_mean"] = 0.0
+            sample_inference_record["speed_std"] = 0.0
+            sample_inference_record["speed_min"] = 0.0
+            sample_inference_record["speed_max"] = 0.0
+        
+        sample_inference_record["QoE"] = None
+        sample_inference_record["timestamp"] = base_timestamp + 8
+    
+    elif args.augmented:
+        # Legacy augmented format
         f_values = []
         for i in range(5):
-            f_values.extend([2.50, 45.12, 105.00, 45.20])
+            f_values.extend([0.0, 15.0, 1200.0, 0.0])
         sample_inference_record = {}
         for i, val in enumerate(f_values):
             sample_inference_record[f"f{i}"] = val
         if args.use_stats:
-            sample_inference_record["packet_loss_rate_mean"] = 2.50
+            sample_inference_record["packet_loss_rate_mean"] = 0.0
             sample_inference_record["packet_loss_rate_std"] = 0.0
-            sample_inference_record["packet_loss_rate_min"] = 2.50
-            sample_inference_record["packet_loss_rate_max"] = 2.50
-            sample_inference_record["jitter_mean"] = 45.12
+            sample_inference_record["packet_loss_rate_min"] = 0.0
+            sample_inference_record["packet_loss_rate_max"] = 0.0
+            sample_inference_record["jitter_mean"] = 15.0
             sample_inference_record["jitter_std"] = 0.0
-            sample_inference_record["jitter_min"] = 45.12
-            sample_inference_record["jitter_max"] = 45.12
-            sample_inference_record["throughput_mean"] = 105.00
+            sample_inference_record["jitter_min"] = 15.0
+            sample_inference_record["jitter_max"] = 15.0
+            sample_inference_record["throughput_mean"] = 1200.0
             sample_inference_record["throughput_std"] = 0.0
-            sample_inference_record["throughput_min"] = 105.00
-            sample_inference_record["throughput_max"] = 105.00
-            sample_inference_record["speed_mean"] = 45.20
+            sample_inference_record["throughput_min"] = 1200.0
+            sample_inference_record["throughput_max"] = 1200.0
+            sample_inference_record["speed_mean"] = 0.0
             sample_inference_record["speed_std"] = 0.0
-            sample_inference_record["speed_min"] = 45.20
-            sample_inference_record["speed_max"] = 45.20
+            sample_inference_record["speed_min"] = 0.0
+            sample_inference_record["speed_max"] = 0.0
         sample_inference_record["QoE"] = None
         sample_inference_record["timestamp"] = "20250204123000"
     else:
+        # Regular (legacy) format
         sample_inference_record = {
-            "packet_loss_rate": 2.50,
-            "jitter": 0.190,
-            "throughput": 105.00,
-            "speed": 45.20,
+            "packet_loss_rate": 0.0,
+            "jitter": 15.0,
+            "throughput": 1200.0,
+            "speed": 0.0,
             "QoE": None,
             "timestamp": "20250204123000"
         }
     
-    # Print model type used for inference
-    print(f"Running inference with {args.model_type.upper()} model...")
-    
     inference_feature_cols = [col for col in df.columns if col not in ["QoE", "timestamp"]]
+    
+    # Get the last seq_length-1 records from the dataset
     last_records = df.iloc[-(args.seq_length - 1):][inference_feature_cols].values
+    
+    # Create a DataFrame with the sample inference record
     sample_inference_df = pd.DataFrame([sample_inference_record])
     sample_inference_features = sample_inference_df[inference_feature_cols].values
+    
+    # Combine the last records with the sample inference record
     sequence_for_inference = np.vstack([last_records, sample_inference_features])
     sequence_for_inference = sequence_for_inference.reshape(1, args.seq_length, len(inference_feature_cols))
     
+    # Predict QoE
     predicted_qoe_scaled = model.predict(sequence_for_inference)
+    
+    # Inverse transform to get the actual QoE value
     dummy_array = np.zeros((1, len(norm_cols)))
     dummy_array[0, -1] = predicted_qoe_scaled[0, 0]
     inverted = scaler.inverse_transform(dummy_array)

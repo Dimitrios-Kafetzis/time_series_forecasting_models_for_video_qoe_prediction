@@ -1,0 +1,89 @@
+FEATURE IMPORTANCE ANALYSIS REPORT
+===============================
+
+Linear Model Feature Importance:
+-------------------------------
+
+Model: linear_basic.h5
+Top 10 Features by Importance (absolute weight):
+  1. f6_t-3: 0.179528
+  2. packet_loss_rate_max_t-2: 0.169332
+  3. jitter_mean_t-5: 0.166529
+  4. f24_t-2: -0.164508
+  5. f23_t-3: 0.160348
+  6. throughput_mean_t-5: 0.159151
+  7. packets_lost_max_t-5: -0.154770
+  8. f19_t-1: -0.154636
+  9. jitter_min_t-2: 0.151952
+  10. speed_mean_t-2: 0.150612
+Bias term: 0.026293
+
+
+Aggregate Feature Importance by Base Feature:
+-------------------------------------------
+(Higher values indicate more influential features across models)
+
+speed_mean: 0.137061 (across 5 occurrences)
+throughput_mean: 0.123186 (across 5 occurrences)
+packets_lost_max: 0.109466 (across 5 occurrences)
+f13: 0.097795 (across 5 occurrences)
+packets_lost_std: 0.094541 (across 5 occurrences)
+f1: 0.094290 (across 5 occurrences)
+f24: 0.092243 (across 5 occurrences)
+f23: 0.092150 (across 5 occurrences)
+f5: 0.091526 (across 5 occurrences)
+packet_loss_rate_min: 0.090027 (across 5 occurrences)
+throughput_min: 0.090021 (across 5 occurrences)
+packet_loss_rate_std: 0.087371 (across 5 occurrences)
+f6: 0.085529 (across 5 occurrences)
+f0: 0.082792 (across 5 occurrences)
+packet_loss_rate_max: 0.082201 (across 5 occurrences)
+jitter_std: 0.082156 (across 5 occurrences)
+f12: 0.081444 (across 5 occurrences)
+f10: 0.081213 (across 5 occurrences)
+speed_min: 0.080761 (across 5 occurrences)
+speed_max: 0.080127 (across 5 occurrences)
+throughput_std: 0.079370 (across 5 occurrences)
+f16: 0.078655 (across 5 occurrences)
+f19: 0.075899 (across 5 occurrences)
+f14: 0.075191 (across 5 occurrences)
+packets_lost_min: 0.072027 (across 5 occurrences)
+jitter_min: 0.069398 (across 5 occurrences)
+f17: 0.065692 (across 5 occurrences)
+f3: 0.065125 (across 5 occurrences)
+f7: 0.064905 (across 5 occurrences)
+f15: 0.061751 (across 5 occurrences)
+jitter_mean: 0.060771 (across 5 occurrences)
+f18: 0.060258 (across 5 occurrences)
+speed_std: 0.059867 (across 5 occurrences)
+f2: 0.058850 (across 5 occurrences)
+f8: 0.057500 (across 5 occurrences)
+f21: 0.055524 (across 5 occurrences)
+f22: 0.054771 (across 5 occurrences)
+packet_loss_rate_mean: 0.050686 (across 5 occurrences)
+packets_lost_mean: 0.047775 (across 5 occurrences)
+jitter_max: 0.045421 (across 5 occurrences)
+f20: 0.043691 (across 5 occurrences)
+f9: 0.039517 (across 5 occurrences)
+throughput_max: 0.031359 (across 5 occurrences)
+f4: 0.029083 (across 5 occurrences)
+f11: 0.028800 (across 5 occurrences)
+
+Feature Importance by Time Step:
+------------------------------
+(Shows whether recent or older measurements are more important)
+
+t-5: 0.066645 (across 45 features)
+t-4: 0.083355 (across 45 features)
+t-3: 0.067231 (across 45 features)
+t-2: 0.069520 (across 45 features)
+t-1: 0.078558 (across 45 features)
+
+Feature Importance by Statistical Feature Type:
+-------------------------------------------
+(Shows which statistical measures are most predictive)
+
+mean: 0.083896 (across 25 features)
+std: 0.080661 (across 25 features)
+min: 0.080447 (across 25 features)
+max: 0.069715 (across 25 features)

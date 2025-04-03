@@ -1,0 +1,909 @@
+{
+  "model_name": "linear_basic.h5",
+  "model_type": "Linear Regressor",
+  "feature_importance": [
+    {
+      "feature": "f6_t-3",
+      "weight": 0.17952784895896912
+    },
+    {
+      "feature": "packet_loss_rate_max_t-2",
+      "weight": 0.1693316251039505
+    },
+    {
+      "feature": "jitter_mean_t-5",
+      "weight": 0.16652892529964447
+    },
+    {
+      "feature": "f24_t-2",
+      "weight": -0.16450771689414978
+    },
+    {
+      "feature": "f23_t-3",
+      "weight": 0.1603478491306305
+    },
+    {
+      "feature": "throughput_mean_t-5",
+      "weight": 0.15915094316005707
+    },
+    {
+      "feature": "packets_lost_max_t-5",
+      "weight": -0.15477034449577332
+    },
+    {
+      "feature": "f19_t-1",
+      "weight": -0.154635950922966
+    },
+    {
+      "feature": "jitter_min_t-2",
+      "weight": 0.1519523710012436
+    },
+    {
+      "feature": "speed_mean_t-2",
+      "weight": 0.15061217546463013
+    },
+    {
+      "feature": "throughput_min_t-5",
+      "weight": 0.14973832666873932
+    },
+    {
+      "feature": "f23_t-1",
+      "weight": 0.1496541053056717
+    },
+    {
+      "feature": "throughput_min_t-4",
+      "weight": 0.1493997871875763
+    },
+    {
+      "feature": "f3_t-5",
+      "weight": 0.14860297739505768
+    },
+    {
+      "feature": "f0_t-4",
+      "weight": 0.14745302498340607
+    },
+    {
+      "feature": "f19_t-4",
+      "weight": -0.14744411408901215
+    },
+    {
+      "feature": "packet_loss_rate_min_t-5",
+      "weight": -0.1468653380870819
+    },
+    {
+      "feature": "packet_loss_rate_std_t-3",
+      "weight": 0.14678961038589478
+    },
+    {
+      "feature": "packets_lost_min_t-4",
+      "weight": -0.1467040628194809
+    },
+    {
+      "feature": "speed_mean_t-5",
+      "weight": 0.1463104635477066
+    },
+    {
+      "feature": "speed_mean_t-1",
+      "weight": -0.14587129652500153
+    },
+    {
+      "feature": "f1_t-1",
+      "weight": -0.14429625868797302
+    },
+    {
+      "feature": "speed_max_t-4",
+      "weight": 0.14209362864494324
+    },
+    {
+      "feature": "throughput_mean_t-4",
+      "weight": 0.14177337288856506
+    },
+    {
+      "feature": "f15_t-1",
+      "weight": 0.14122231304645538
+    },
+    {
+      "feature": "packets_lost_std_t-1",
+      "weight": 0.14032338559627533
+    },
+    {
+      "feature": "jitter_std_t-4",
+      "weight": -0.13825154304504395
+    },
+    {
+      "feature": "throughput_mean_t-2",
+      "weight": -0.1371314823627472
+    },
+    {
+      "feature": "f1_t-2",
+      "weight": -0.1371127963066101
+    },
+    {
+      "feature": "packets_lost_max_t-4",
+      "weight": -0.1366114318370819
+    },
+    {
+      "feature": "speed_max_t-2",
+      "weight": 0.1360548734664917
+    },
+    {
+      "feature": "packets_lost_min_t-5",
+      "weight": -0.13560771942138672
+    },
+    {
+      "feature": "throughput_std_t-4",
+      "weight": 0.1355092078447342
+    },
+    {
+      "feature": "f7_t-1",
+      "weight": 0.13543403148651123
+    },
+    {
+      "feature": "f12_t-1",
+      "weight": 0.13496771454811096
+    },
+    {
+      "feature": "f14_t-1",
+      "weight": -0.1345987468957901
+    },
+    {
+      "feature": "f24_t-3",
+      "weight": 0.13223257660865784
+    },
+    {
+      "feature": "f18_t-4",
+      "weight": -0.13197478652000427
+    },
+    {
+      "feature": "f5_t-3",
+      "weight": 0.13024386763572693
+    },
+    {
+      "feature": "f13_t-1",
+      "weight": 0.12968169152736664
+    },
+    {
+      "feature": "speed_mean_t-4",
+      "weight": 0.12828201055526733
+    },
+    {
+      "feature": "packets_lost_std_t-3",
+      "weight": 0.1282605230808258
+    },
+    {
+      "feature": "f12_t-3",
+      "weight": -0.1281622052192688
+    },
+    {
+      "feature": "packet_loss_rate_mean_t-2",
+      "weight": -0.12661510705947876
+    },
+    {
+      "feature": "f0_t-3",
+      "weight": 0.12380369007587433
+    },
+    {
+      "feature": "f5_t-5",
+      "weight": -0.12372992932796478
+    },
+    {
+      "feature": "packets_lost_std_t-4",
+      "weight": 0.12321130186319351
+    },
+    {
+      "feature": "f16_t-3",
+      "weight": 0.12219808995723724
+    },
+    {
+      "feature": "f2_t-4",
+      "weight": 0.11885079741477966
+    },
+    {
+      "feature": "packet_loss_rate_min_t-4",
+      "weight": -0.11759687215089798
+    },
+    {
+      "feature": "f17_t-5",
+      "weight": -0.116669200360775
+    },
+    {
+      "feature": "f8_t-1",
+      "weight": -0.11436429619789124
+    },
+    {
+      "feature": "speed_mean_t-3",
+      "weight": -0.11422839015722275
+    },
+    {
+      "feature": "f13_t-4",
+      "weight": -0.11372389644384384
+    },
+    {
+      "feature": "f13_t-5",
+      "weight": 0.11311236768960953
+    },
+    {
+      "feature": "f14_t-4",
+      "weight": -0.11267158389091492
+    },
+    {
+      "feature": "f3_t-4",
+      "weight": 0.11222505569458008
+    },
+    {
+      "feature": "packet_loss_rate_std_t-1",
+      "weight": -0.11167968064546585
+    },
+    {
+      "feature": "f10_t-4",
+      "weight": 0.11054929345846176
+    },
+    {
+      "feature": "throughput_max_t-1",
+      "weight": 0.10518766939640045
+    },
+    {
+      "feature": "packets_lost_mean_t-5",
+      "weight": 0.10479012876749039
+    },
+    {
+      "feature": "packets_lost_max_t-1",
+      "weight": 0.10429952293634415
+    },
+    {
+      "feature": "f10_t-3",
+      "weight": 0.10352777689695358
+    },
+    {
+      "feature": "packet_loss_rate_min_t-2",
+      "weight": 0.10317766666412354
+    },
+    {
+      "feature": "f15_t-4",
+      "weight": -0.102497898042202
+    },
+    {
+      "feature": "packets_lost_max_t-3",
+      "weight": -0.10191767662763596
+    },
+    {
+      "feature": "f16_t-1",
+      "weight": 0.10164192318916321
+    },
+    {
+      "feature": "packet_loss_rate_max_t-4",
+      "weight": 0.10123015940189362
+    },
+    {
+      "feature": "jitter_std_t-2",
+      "weight": -0.10078247636556625
+    },
+    {
+      "feature": "f13_t-2",
+      "weight": 0.09985838830471039
+    },
+    {
+      "feature": "f2_t-1",
+      "weight": -0.09962846338748932
+    },
+    {
+      "feature": "f6_t-4",
+      "weight": 0.09929884225130081
+    },
+    {
+      "feature": "f7_t-3",
+      "weight": -0.09929460287094116
+    },
+    {
+      "feature": "speed_min_t-3",
+      "weight": -0.09875055402517319
+    },
+    {
+      "feature": "jitter_max_t-2",
+      "weight": -0.09807995706796646
+    },
+    {
+      "feature": "throughput_min_t-2",
+      "weight": 0.09780348837375641
+    },
+    {
+      "feature": "speed_std_t-2",
+      "weight": 0.09700223803520203
+    },
+    {
+      "feature": "throughput_mean_t-3",
+      "weight": 0.09530464559793472
+    },
+    {
+      "feature": "f22_t-4",
+      "weight": 0.09279058128595352
+    },
+    {
+      "feature": "jitter_min_t-1",
+      "weight": -0.09009592235088348
+    },
+    {
+      "feature": "throughput_std_t-1",
+      "weight": -0.08924387395381927
+    },
+    {
+      "feature": "throughput_std_t-3",
+      "weight": -0.08920445293188095
+    },
+    {
+      "feature": "f9_t-4",
+      "weight": -0.08908715844154358
+    },
+    {
+      "feature": "jitter_std_t-1",
+      "weight": 0.08841254562139511
+    },
+    {
+      "feature": "f10_t-1",
+      "weight": -0.0871260017156601
+    },
+    {
+      "feature": "speed_min_t-4",
+      "weight": 0.08712135255336761
+    },
+    {
+      "feature": "packet_loss_rate_std_t-4",
+      "weight": -0.08629447966814041
+    },
+    {
+      "feature": "speed_min_t-5",
+      "weight": 0.08544686436653137
+    },
+    {
+      "feature": "speed_std_t-3",
+      "weight": 0.08526229858398438
+    },
+    {
+      "feature": "f23_t-5",
+      "weight": 0.08504000306129456
+    },
+    {
+      "feature": "f16_t-5",
+      "weight": 0.0849766954779625
+    },
+    {
+      "feature": "f21_t-5",
+      "weight": -0.08494262397289276
+    },
+    {
+      "feature": "f8_t-2",
+      "weight": -0.08476512134075165
+    },
+    {
+      "feature": "f17_t-3",
+      "weight": -0.08425458520650864
+    },
+    {
+      "feature": "speed_min_t-1",
+      "weight": 0.08409598469734192
+    },
+    {
+      "feature": "jitter_min_t-5",
+      "weight": 0.0829988345503807
+    },
+    {
+      "feature": "throughput_mean_t-1",
+      "weight": -0.08256921917200089
+    },
+    {
+      "feature": "f18_t-1",
+      "weight": 0.08129804581403732
+    },
+    {
+      "feature": "f0_t-1",
+      "weight": 0.08096260577440262
+    },
+    {
+      "feature": "f10_t-5",
+      "weight": -0.07966680079698563
+    },
+    {
+      "feature": "f5_t-1",
+      "weight": -0.07934781908988953
+    },
+    {
+      "feature": "f1_t-4",
+      "weight": -0.07836084067821503
+    },
+    {
+      "feature": "packet_loss_rate_min_t-3",
+      "weight": 0.07809920608997345
+    },
+    {
+      "feature": "f20_t-4",
+      "weight": -0.07746071368455887
+    },
+    {
+      "feature": "f8_t-5",
+      "weight": -0.0772508829832077
+    },
+    {
+      "feature": "f22_t-3",
+      "weight": -0.07704286277294159
+    },
+    {
+      "feature": "f21_t-2",
+      "weight": -0.07586603611707687
+    },
+    {
+      "feature": "packet_loss_rate_mean_t-4",
+      "weight": 0.07499214261770248
+    },
+    {
+      "feature": "f24_t-5",
+      "weight": 0.07453379034996033
+    },
+    {
+      "feature": "jitter_std_t-3",
+      "weight": -0.07449784874916077
+    },
+    {
+      "feature": "f24_t-4",
+      "weight": -0.07316862791776657
+    },
+    {
+      "feature": "f12_t-2",
+      "weight": -0.07298463582992554
+    },
+    {
+      "feature": "packets_lost_mean_t-2",
+      "weight": -0.07279931753873825
+    },
+    {
+      "feature": "f2_t-2",
+      "weight": 0.0703408345580101
+    },
+    {
+      "feature": "f1_t-3",
+      "weight": 0.06837863475084305
+    },
+    {
+      "feature": "packet_loss_rate_std_t-5",
+      "weight": 0.06813978403806686
+    },
+    {
+      "feature": "jitter_max_t-1",
+      "weight": 0.06756202131509781
+    },
+    {
+      "feature": "f5_t-4",
+      "weight": 0.06690061092376709
+    },
+    {
+      "feature": "f21_t-1",
+      "weight": -0.06606046855449677
+    },
+    {
+      "feature": "f4_t-1",
+      "weight": 0.06571096181869507
+    },
+    {
+      "feature": "f6_t-2",
+      "weight": -0.06416255235671997
+    },
+    {
+      "feature": "f19_t-3",
+      "weight": -0.06388270109891891
+    },
+    {
+      "feature": "f14_t-2",
+      "weight": -0.06372541934251785
+    },
+    {
+      "feature": "packets_lost_min_t-1",
+      "weight": -0.06320295482873917
+    },
+    {
+      "feature": "f11_t-2",
+      "weight": 0.06273821741342545
+    },
+    {
+      "feature": "f6_t-5",
+      "weight": 0.06205291301012039
+    },
+    {
+      "feature": "speed_max_t-5",
+      "weight": -0.06152757257223129
+    },
+    {
+      "feature": "f17_t-4",
+      "weight": -0.059954650700092316
+    },
+    {
+      "feature": "f17_t-2",
+      "weight": -0.05979318544268608
+    },
+    {
+      "feature": "jitter_mean_t-2",
+      "weight": -0.05873370170593262
+    },
+    {
+      "feature": "f22_t-1",
+      "weight": -0.05861042067408562
+    },
+    {
+      "feature": "f5_t-2",
+      "weight": -0.057405874133110046
+    },
+    {
+      "feature": "throughput_std_t-2",
+      "weight": -0.0573493167757988
+    },
+    {
+      "feature": "f20_t-5",
+      "weight": 0.057123132050037384
+    },
+    {
+      "feature": "speed_std_t-1",
+      "weight": -0.05700034648180008
+    },
+    {
+      "feature": "f18_t-2",
+      "weight": 0.05692315101623535
+    },
+    {
+      "feature": "packet_loss_rate_max_t-3",
+      "weight": 0.054700471460819244
+    },
+    {
+      "feature": "speed_std_t-5",
+      "weight": -0.052990518510341644
+    },
+    {
+      "feature": "f4_t-4",
+      "weight": -0.0521317720413208
+    },
+    {
+      "feature": "jitter_max_t-4",
+      "weight": 0.05203539878129959
+    },
+    {
+      "feature": "f9_t-3",
+      "weight": 0.04998219385743141
+    },
+    {
+      "feature": "f12_t-5",
+      "weight": 0.04992686212062836
+    },
+    {
+      "feature": "packets_lost_max_t-2",
+      "weight": 0.04973302036523819
+    },
+    {
+      "feature": "packet_loss_rate_max_t-1",
+      "weight": -0.04973028600215912
+    },
+    {
+      "feature": "f7_t-2",
+      "weight": -0.04871589317917824
+    },
+    {
+      "feature": "speed_min_t-2",
+      "weight": 0.04839032143354416
+    },
+    {
+      "feature": "f14_t-3",
+      "weight": 0.0477026104927063
+    },
+    {
+      "feature": "packets_lost_std_t-5",
+      "weight": 0.047210581600666046
+    },
+    {
+      "feature": "f20_t-1",
+      "weight": -0.046651050448417664
+    },
+    {
+      "feature": "f16_t-2",
+      "weight": -0.04549243301153183
+    },
+    {
+      "feature": "f3_t-3",
+      "weight": -0.0452900230884552
+    },
+    {
+      "feature": "packet_loss_rate_mean_t-1",
+      "weight": -0.0434856191277504
+    },
+    {
+      "feature": "f1_t-5",
+      "weight": -0.04329966381192207
+    },
+    {
+      "feature": "f0_t-2",
+      "weight": 0.04266572371125221
+    },
+    {
+      "feature": "f9_t-2",
+      "weight": 0.041534699499607086
+    },
+    {
+      "feature": "f16_t-4",
+      "weight": -0.038965463638305664
+    },
+    {
+      "feature": "f11_t-3",
+      "weight": -0.03746689110994339
+    },
+    {
+      "feature": "jitter_mean_t-3",
+      "weight": -0.036680035293102264
+    },
+    {
+      "feature": "throughput_max_t-3",
+      "weight": -0.03612210229039192
+    },
+    {
+      "feature": "packet_loss_rate_max_t-5",
+      "weight": -0.03601152449846268
+    },
+    {
+      "feature": "throughput_min_t-1",
+      "weight": -0.03429010510444641
+    },
+    {
+      "feature": "f23_t-2",
+      "weight": 0.03407404571771622
+    },
+    {
+      "feature": "packets_lost_std_t-2",
+      "weight": -0.033700887113809586
+    },
+    {
+      "feature": "f21_t-4",
+      "weight": 0.03304397687315941
+    },
+    {
+      "feature": "f13_t-3",
+      "weight": -0.03260114789009094
+    },
+    {
+      "feature": "speed_max_t-1",
+      "weight": 0.03184128552675247
+    },
+    {
+      "feature": "f23_t-4",
+      "weight": 0.03163428232073784
+    },
+    {
+      "feature": "f7_t-5",
+      "weight": 0.030287547037005424
+    },
+    {
+      "feature": "f20_t-2",
+      "weight": 0.029961276799440384
+    },
+    {
+      "feature": "speed_max_t-3",
+      "weight": -0.029117155820131302
+    },
+    {
+      "feature": "f11_t-1",
+      "weight": -0.028950735926628113
+    },
+    {
+      "feature": "f15_t-5",
+      "weight": -0.027693092823028564
+    },
+    {
+      "feature": "packets_lost_mean_t-3",
+      "weight": 0.027252979576587677
+    },
+    {
+      "feature": "f22_t-2",
+      "weight": -0.02555382065474987
+    },
+    {
+      "feature": "throughput_std_t-5",
+      "weight": -0.02554115280508995
+    },
+    {
+      "feature": "f18_t-3",
+      "weight": -0.02553931623697281
+    },
+    {
+      "feature": "f10_t-2",
+      "weight": -0.025194784626364708
+    },
+    {
+      "feature": "packet_loss_rate_std_t-2",
+      "weight": 0.023950958624482155
+    },
+    {
+      "feature": "f6_t-1",
+      "weight": 0.022602494806051254
+    },
+    {
+      "feature": "f4_t-5",
+      "weight": -0.02188996970653534
+    },
+    {
+      "feature": "jitter_mean_t-4",
+      "weight": -0.021344032138586044
+    },
+    {
+      "feature": "f12_t-4",
+      "weight": 0.021180782467126846
+    },
+    {
+      "feature": "jitter_min_t-3",
+      "weight": -0.02110622450709343
+    },
+    {
+      "feature": "packets_lost_mean_t-1",
+      "weight": -0.020948639139533043
+    },
+    {
+      "feature": "jitter_mean_t-1",
+      "weight": 0.02056829445064068
+    },
+    {
+      "feature": "f22_t-5",
+      "weight": -0.019857149571180344
+    },
+    {
+      "feature": "f0_t-5",
+      "weight": -0.019073545932769775
+    },
+    {
+      "feature": "f15_t-2",
+      "weight": 0.018927082419395447
+    },
+    {
+      "feature": "throughput_min_t-3",
+      "weight": -0.018871087580919266
+    },
+    {
+      "feature": "f15_t-3",
+      "weight": 0.018414806574583054
+    },
+    {
+      "feature": "f21_t-3",
+      "weight": -0.017705969512462616
+    },
+    {
+      "feature": "f14_t-5",
+      "weight": -0.017255637794733047
+    },
+    {
+      "feature": "f24_t-1",
+      "weight": -0.016773825511336327
+    },
+    {
+      "feature": "f11_t-4",
+      "weight": 0.013418000191450119
+    },
+    {
+      "feature": "packets_lost_mean_t-4",
+      "weight": 0.013086368329823017
+    },
+    {
+      "feature": "throughput_max_t-2",
+      "weight": 0.01086574699729681
+    },
+    {
+      "feature": "f7_t-4",
+      "weight": 0.010792504996061325
+    },
+    {
+      "feature": "f3_t-2",
+      "weight": 0.009866483509540558
+    },
+    {
+      "feature": "packets_lost_min_t-3",
+      "weight": -0.009860910475254059
+    },
+    {
+      "feature": "f3_t-1",
+      "weight": -0.009638981893658638
+    },
+    {
+      "feature": "jitter_std_t-5",
+      "weight": 0.008836192078888416
+    },
+    {
+      "feature": "jitter_max_t-3",
+      "weight": 0.008688785135746002
+    },
+    {
+      "feature": "f9_t-1",
+      "weight": 0.008679167367517948
+    },
+    {
+      "feature": "f9_t-5",
+      "weight": -0.00830389466136694
+    },
+    {
+      "feature": "f19_t-5",
+      "weight": 0.008143648505210876
+    },
+    {
+      "feature": "f17_t-1",
+      "weight": 0.0077866604551672935
+    },
+    {
+      "feature": "f8_t-4",
+      "weight": 0.007360742427408695
+    },
+    {
+      "feature": "f20_t-3",
+      "weight": 0.007258306257426739
+    },
+    {
+      "feature": "speed_std_t-4",
+      "weight": 0.007081761956214905
+    },
+    {
+      "feature": "f18_t-5",
+      "weight": 0.005556659307330847
+    },
+    {
+      "feature": "f19_t-2",
+      "weight": -0.005388328805565834
+    },
+    {
+      "feature": "packets_lost_min_t-2",
+      "weight": -0.004757196642458439
+    },
+    {
+      "feature": "throughput_max_t-4",
+      "weight": 0.004593742545694113
+    },
+    {
+      "feature": "packet_loss_rate_min_t-1",
+      "weight": -0.004398159682750702
+    },
+    {
+      "feature": "f2_t-3",
+      "weight": -0.004366246517747641
+    },
+    {
+      "feature": "packet_loss_rate_mean_t-5",
+      "weight": -0.004306006245315075
+    },
+    {
+      "feature": "packet_loss_rate_mean_t-3",
+      "weight": 0.004031090997159481
+    },
+    {
+      "feature": "f8_t-3",
+      "weight": -0.003760019550099969
+    },
+    {
+      "feature": "f4_t-3",
+      "weight": 0.0036721033975481987
+    },
+    {
+      "feature": "f4_t-2",
+      "weight": -0.002012296114116907
+    },
+    {
+      "feature": "f11_t-5",
+      "weight": -0.0014243873301893473
+    },
+    {
+      "feature": "f2_t-5",
+      "weight": 0.0010620796820148826
+    },
+    {
+      "feature": "jitter_min_t-4",
+      "weight": 0.0008363571832887828
+    },
+    {
+      "feature": "jitter_max_t-5",
+      "weight": 0.0007377995643764734
+    },
+    {
+      "feature": "throughput_max_t-5",
+      "weight": 2.781684452202171e-05
+    }
+  ],
+  "bias": 0.026293326169252396,
+  "feature_count": 45,
+  "sequence_length": 5
+}

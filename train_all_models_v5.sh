@@ -1,8 +1,8 @@
 #!/bin/bash
-# train_all_models.sh
+# train_all_models_v5.sh
 # Script to train all time series forecasting models with various configurations
-# using the augmented dataset.
-# UPDATED: All models now use --use_stats flag for feature consistency
+# using the augmented dataset with the new format (10-second windows with 2-second intervals).
+# UPDATED: All models now use the new dataset format by default and the --use_stats flag for feature consistency
 
 # Define the output directory for models
 OUTPUT_DIR=~/Impact-xG_prediction_model/forecasting_models_v5
@@ -10,7 +10,7 @@ OUTPUT_DIR=~/Impact-xG_prediction_model/forecasting_models_v5
 mkdir -p "$OUTPUT_DIR"
 
 # Define the path to your augmented dataset
-AUGMENTED_DATASET="./augmented_dataset"  # Change this to your actual dataset path
+AUGMENTED_DATASET="./real_dataset"  # Change this to your actual dataset path
 
 # Define common parameters
 SEQ_LENGTH=5
@@ -22,7 +22,7 @@ LOG_FILE="$OUTPUT_DIR/training_log.txt"
 
 echo "Starting training of all models at $(date)" | tee "$LOG_FILE"
 echo "Models will be saved in $OUTPUT_DIR" | tee -a "$LOG_FILE"
-echo "All models will be trained with --use_stats flag enabled" | tee -a "$LOG_FILE"
+echo "All models will be trained with the new dataset format (default) and --use_stats flag enabled" | tee -a "$LOG_FILE"
 
 # Function to run training with specified parameters
 train_model() {
@@ -37,6 +37,7 @@ train_model() {
     echo "=====================================================" | tee -a "$LOG_FILE"
     
     # Construct the complete command with --use_stats for all models
+    # The new format is now used by default when --augmented is specified
     local cmd="python3 timeseries_forecasting_models_v5.py \
                 --data_folder $AUGMENTED_DATASET \
                 --model_type $model_type \

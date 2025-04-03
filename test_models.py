@@ -13,9 +13,21 @@ Description:
       1. Regular: One JSON file per 10-second interval with keys:
          "packet_loss_rate", "jitter", "throughput", "speed", "QoE", "timestamp",
          (and optionally additional temporal features such as "hour", "minute", "day_of_week").
-      2. Augmented: One JSON file per 5‑second window with five 1‑second measurements
-         (flattened into features) and aggregated QoE. Extra summary statistics may be
-         included if the --use_stats flag is provided.
+      2. Augmented (Default): One JSON file per 10-second window with 2-second interval measurements:
+         {
+             "QoE": <float>,
+             "timestamp": <int>,
+             "<timestamp_1>": {
+                 "throughput": <float>,
+                 "packets_lost": <float>,
+                 "packet_loss_rate": <float>,
+                 "jitter": <float>,
+                 "speed": <float>
+             },
+             "<timestamp_2>": { ... },
+             ...
+         }
+         Extra summary statistics may be included if the --use_stats flag is provided.
 
     It supports evaluation of models including:
          - Linear Regressor
@@ -39,14 +51,14 @@ Usage Examples:
     Testing Simple DNN model:
       $ python3 test_models.py --data_folder ./mock_dataset --model_file dnn_with_elu.h5 --seq_length 5 --scaler_file scaler.save
 
-    Augmented mode (without extra stats):
+    Augmented mode (new format, default):
       $ python3 test_models.py --data_folder ./augmented_dataset --model_file model_lstm.h5 --seq_length 5 --scaler_file scaler.save --augmented
 
-    Augmented mode (with extra stats):
+    Augmented mode with extra stats:
       $ python3 test_models.py --data_folder ./augmented_dataset --model_file model_gru.h5 --seq_length 5 --scaler_file scaler.save --augmented --use_stats
 
-    Testing models with self-attention:
-      $ python3 test_models.py --data_folder ./augmented_dataset --model_file ./forecasting_models_v5/lstm_basic.h5 --seq_length 5 --scaler_file ./forecasting_models_v5/scaler.save --augmented
+    Legacy format mode:
+      $ python3 test_models.py --data_folder ./old_dataset --model_file model_lstm.h5 --seq_length 5 --scaler_file scaler.save --augmented --legacy_format
 
     To simulate inference latency on a different device (e.g., "xeon" or "jetson"):
       $ python3 test_models.py --data_folder ./augmented_dataset --model_file model_gru.h5 --seq_length 5 --scaler_file scaler.save --augmented --simulate_device xeon
@@ -146,6 +158,42 @@ class SelfAttention(tf.keras.layers.Layer):
         })
         return config
 
+# Define the TransformerBlock class for loading transformer models
+class TransformerBlock(tf.keras.layers.Layer):
+    def __init__(self, embed_dim, num_heads, ff_dim, rate=0.1, **kwargs):
+        super(TransformerBlock, self).__init__(**kwargs)
+        self.embed_dim = embed_dim
+        self.num_heads = num_heads
+        self.ff_dim = ff_dim
+        self.rate = rate
+        self.att = tf.keras.layers.MultiHeadAttention(num_heads=num_heads, key_dim=embed_dim)
+        self.ffn = tf.keras.Sequential([
+            tf.keras.layers.Dense(ff_dim, activation="relu"),
+            tf.keras.layers.Dense(embed_dim),
+        ])
+        self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.dropout1 = tf.keras.layers.Dropout(rate)
+        self.dropout2 = tf.keras.layers.Dropout(rate)
+
+    def call(self, inputs, training=False):
+        attn_output = self.att(inputs, inputs)
+        attn_output = self.dropout1(attn_output, training=training)
+        out1 = self.layernorm1(inputs + attn_output)
+        ffn_output = self.ffn(out1)
+        ffn_output = self.dropout2(ffn_output, training=training)
+        return self.layernorm2(out1 + ffn_output)
+    
+    def get_config(self):
+        config = super(TransformerBlock, self).get_config()
+        config.update({
+            "embed_dim": self.embed_dim,
+            "num_heads": self.num_heads,
+            "ff_dim": self.ff_dim,
+            "rate": self.rate,
+        })
+        return config
+
 # Implementation of data loading functions in case they can't be imported
 def load_dataset_from_folder_fallback(folder_path):
     """
@@ -165,11 +213,31 @@ def load_dataset_from_folder_fallback(folder_path):
     df = pd.DataFrame(data_sorted)
     return df
 
-def load_augmented_dataset_from_folder_fallback(folder_path, use_stats=False):
+def load_augmented_dataset_from_folder_fallback(folder_path, use_stats=False, legacy_format=False):
     """
     Load all JSON files from the folder (augmented format) and return a DataFrame.
-    In each JSON file, the keys that are not "QoE" or "timestamp" represent 1-second measurements.
-    These are sorted and flattened into feature columns f0, f1, ..., f19 (for 5 seconds × 4 features).
+    
+    For legacy augmented format:
+      In each JSON file, the keys that are not "QoE" or "timestamp" represent 1-second measurements.
+      These are sorted and flattened into feature columns f0, f1, ..., f19 (for 5 seconds × 4 features).
+    
+    For new augmented format (default):
+      Each file corresponds to a 10-second window with 2-second interval measurements:
+      {
+          "QoE": <float>,
+          "timestamp": <int>,
+          "<timestamp_1>": {
+              "throughput": <float>,
+              "packets_lost": <float>,
+              "packet_loss_rate": <float>,
+              "jitter": <float>,
+              "speed": <float>
+          },
+          "<timestamp_2>": { ... },
+          ...
+      }
+      These are flattened into feature columns f0, f1, ..., f24 (for 5 timestamps × 5 features).
+      
     If use_stats is True, additional statistics (mean, std, min, max for each feature) are computed.
     """
     data = []
@@ -178,32 +246,64 @@ def load_augmented_dataset_from_folder_fallback(folder_path, use_stats=False):
             file_path = os.path.join(folder_path, file_name)
             with open(file_path, 'r') as f:
                 json_data = json.load(f)
+            
             inner_keys = [k for k in json_data.keys() if k not in ["QoE", "timestamp"]]
             inner_keys = sorted(inner_keys)
+            
             flat_features = []
             if use_stats:
-                stats_features = {"packet_loss_rate": [], "jitter": [], "throughput": [], "speed": []}
+                # For the new format, track metrics differently
+                if not legacy_format:
+                    stats_features = {
+                        "packet_loss_rate": [], "jitter": [], "throughput": [], 
+                        "speed": [], "packets_lost": []
+                    }
+                else:
+                    stats_features = {
+                        "packet_loss_rate": [], "jitter": [], "throughput": [], "speed": []
+                    }
+            
             for key in inner_keys:
                 entry = json_data[key]
-                flat_features.extend([entry["packet_loss_rate"], entry["jitter"], entry["throughput"], entry["speed"]])
-                if use_stats:
-                    stats_features["packet_loss_rate"].append(entry["packet_loss_rate"])
-                    stats_features["jitter"].append(entry["jitter"])
-                    stats_features["throughput"].append(entry["throughput"])
-                    stats_features["speed"].append(entry["speed"])
+                if not legacy_format:
+                    # New format includes "packets_lost"
+                    flat_features.extend([
+                        entry["throughput"], entry["packets_lost"], entry["packet_loss_rate"], 
+                        entry["jitter"], entry["speed"]
+                    ])
+                    if use_stats:
+                        stats_features["throughput"].append(entry["throughput"])
+                        stats_features["packets_lost"].append(entry["packets_lost"])
+                        stats_features["packet_loss_rate"].append(entry["packet_loss_rate"])
+                        stats_features["jitter"].append(entry["jitter"])
+                        stats_features["speed"].append(entry["speed"])
+                else:
+                    # Legacy format
+                    flat_features.extend([
+                        entry["packet_loss_rate"], entry["jitter"], entry["throughput"], entry["speed"]
+                    ])
+                    if use_stats:
+                        stats_features["packet_loss_rate"].append(entry["packet_loss_rate"])
+                        stats_features["jitter"].append(entry["jitter"])
+                        stats_features["throughput"].append(entry["throughput"])
+                        stats_features["speed"].append(entry["speed"])
+            
             sample = {}
             for i, val in enumerate(flat_features):
                 sample[f"f{i}"] = val
+            
             if use_stats:
-                for feature in ["packet_loss_rate", "jitter", "throughput", "speed"]:
+                for feature in stats_features.keys():
                     arr = np.array(stats_features[feature])
                     sample[f"{feature}_mean"] = float(np.mean(arr))
                     sample[f"{feature}_std"] = float(np.std(arr))
                     sample[f"{feature}_min"] = float(np.min(arr))
                     sample[f"{feature}_max"] = float(np.max(arr))
+            
             sample["QoE"] = json_data["QoE"]
             sample["timestamp"] = json_data["timestamp"]
             data.append(sample)
+    
     data_sorted = sorted(data, key=lambda x: x["timestamp"])
     df = pd.DataFrame(data_sorted)
     return df
@@ -227,7 +327,15 @@ def preprocess_dataframe_fallback(df):
     numeric_cols = [col for col in df.columns if col != 'timestamp']
     for col in numeric_cols:
         df[col] = pd.to_numeric(df[col], errors='coerce')
-    df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y%m%d%H%M%S')
+    
+    # Handle timestamp which might be an integer or string
+    if df['timestamp'].dtype == object:
+        df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y%m%d%H%M%S')
+    else:
+        # Convert integer timestamp to string first
+        df['timestamp'] = df['timestamp'].astype(str)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], format='%Y%m%d%H%M%S')
+    
     df.sort_values('timestamp', inplace=True)
     df.reset_index(drop=True, inplace=True)
     return df
@@ -302,9 +410,11 @@ def main():
                         help="Proportion of data to reserve for testing (default: 0.2).")
     # Options for augmented dataset mode and extra statistical features.
     parser.add_argument("--augmented", action="store_true",
-                        help="Indicate that the dataset is in augmented mode (each file covers 5 seconds with 1-second granularity).")
+                        help="Indicate that the dataset is in augmented mode.")
+    parser.add_argument("--legacy_format", action="store_true",
+                        help="Use legacy format (5-second windows with 1-second intervals) instead of new format.")
     parser.add_argument("--use_stats", action="store_true",
-                        help="(Only valid with --augmented) Include extra statistical features computed from the inner 5-second window.")
+                        help="Include extra statistical features computed from the window.")
     # New argument to simulate latency on other devices.
     parser.add_argument("--simulate_device", type=str, default="current",
                         help="Simulate inference latency for a given device. Options: current, xeon, jetson")
@@ -321,16 +431,19 @@ def main():
     # Try to use the imported functions, fall back to local implementations if needed
     try:
         if args.augmented:
-            print("Loading augmented dataset from:", args.data_folder)
-            df = load_augmented_dataset_from_folder(args.data_folder, use_stats=args.use_stats)
+            print(f"Loading augmented dataset with {'legacy' if args.legacy_format else 'new'} format from: {args.data_folder}")
+            df = load_augmented_dataset_from_folder(args.data_folder, use_stats=args.use_stats, 
+                                                   new_format=not args.legacy_format)
         else:
             print("Loading regular dataset from:", args.data_folder)
             df = load_dataset_from_folder(args.data_folder)
-    except NameError:
+    except Exception as e:
+        print(f"Error using imported functions: {str(e)}")
         print("Using fallback data loading functions")
         if args.augmented:
-            print("Loading augmented dataset from:", args.data_folder)
-            df = load_augmented_dataset_from_folder_fallback(args.data_folder, use_stats=args.use_stats)
+            print(f"Loading augmented dataset with {'legacy' if args.legacy_format else 'new'} format from: {args.data_folder}")
+            df = load_augmented_dataset_from_folder_fallback(args.data_folder, use_stats=args.use_stats, 
+                                                           legacy_format=args.legacy_format)
         else:
             print("Loading regular dataset from:", args.data_folder)
             df = load_dataset_from_folder_fallback(args.data_folder)
@@ -347,7 +460,8 @@ def main():
     # Preprocess the DataFrame
     try:
         df = preprocess_dataframe(df)
-    except NameError:
+    except Exception as e:
+        print(f"Error using imported preprocess function: {str(e)}")
         df = preprocess_dataframe_fallback(df)
     
     # Load the scaler (fitted during training) and apply the transformation.
@@ -357,7 +471,8 @@ def main():
     # Create sequences from the data.
     try:
         X, y = create_sequences(df, seq_length=args.seq_length, feature_cols=feature_cols, target_col='QoE')
-    except NameError:
+    except Exception as e:
+        print(f"Error using imported create_sequences function: {str(e)}")
         X, y = create_sequences_fallback(df, seq_length=args.seq_length, feature_cols=feature_cols, target_col='QoE')
         
     print("Total sequences:", X.shape[0])
