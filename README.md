@@ -293,6 +293,84 @@ There are four versions of the model definition scripts:
   
 Choose the version that best suits your experimental needs or to compare performance differences.
 
+### Model Validation
+
+The repository includes a validation system to perform controlled experiments on trained models using known ground truth data. This allows for more realistic assessment of model performance beyond traditional test set evaluation.
+
+#### Preparing a Validation Dataset
+
+First, create a validation dataset with pairs of files (with/without QoE values) using:
+
+```bash
+python3 prepare_validation_data.py --input_folder ./real_dataset --output_folder ./validation_dataset --sample_ratio 0.2 --random_seed 42"
+```
+
+Options:
+- `--input_folder`: Path to original dataset with ground truth QoE values
+- `--output_folder`: Where to save the validation dataset
+- `--sample_ratio`: Fraction of files to include in validation set (default: 1.0)
+- `--random_seed`: Random seed for reproducible sampling
+- `--legacy_format`: Use if your dataset is in legacy format
+
+#### Validating Models
+
+Run controlled validation experiments on one or more models:
+
+```bash
+python3 validate_models.py --validation_folder ./validation_dataset --model_dir ./forecasting_models_v5 --scaler_file ./forecasting_models_v5/scaler.save --output_dir ./validation_results --seq_length 5 --use_stats"
+```
+
+For a single model:
+```bash
+python3 validate_models.py --validation_folder ./validation_dataset --model_file ./forecasting_models_v5/model_lstm.h5 --scaler_file ./forecasting_models_v5/scaler.save --output_dir ./validation_results_lstm"
+```
+
+Options:
+- `--validation_folder`: Path to validation dataset created by prepare_validation_data.py
+- `--model_dir`: Directory containing all models to validate
+- `--model_file`: Path to a single model file for individual validation
+- `--scaler_file`: Path to the scaler file
+- `--output_dir`: Where to save validation results and visualizations
+- `--seq_length`: Sequence length used by the model(s)
+- `--use_stats`: Include if models were trained with statistical features
+- `--legacy_format`: Use if validation dataset is in legacy format
+
+#### Integrated Testing and Validation
+
+Use the enhanced test_all_models.sh script to run both testing and validation:
+
+```bash
+./test_all_models.sh --validate --prepare-validation --validation-sample 0.2"
+```
+
+Options:
+- `--validate`: Enable validation after regular testing
+- `--prepare-validation`: Create validation dataset before testing
+- `--validation-sample <ratio>`: Sampling ratio for validation dataset
+- `--validation-seed <num>`: Random seed for reproducible validation
+- `--validation-folder <path>`: Custom validation dataset location
+- `--validation-output <path>`: Custom validation results location
+
+#### Validation Outputs
+
+The validation process generates:
+
+1. **Validation report** (validation_report.txt):
+   - Comprehensive metrics for each model
+   - Rankings based on various metrics (RMSE, MAE, R², bias)
+   - Detailed analysis of largest errors
+
+2. **Visualizations**:
+   - Scatter plots of predictions vs ground truth
+   - Error distribution histograms
+   - Error vs ground truth plots
+   - Top files with largest errors
+   - Comparative visualizations across models
+
+3. **CSV files** for further analysis:
+   - validation_summary.csv: Summary metrics for all models
+   - model_detailed_results.csv: File-by-file predictions and errors
+
 ## License
 
 This project is licensed under the MIT License.
