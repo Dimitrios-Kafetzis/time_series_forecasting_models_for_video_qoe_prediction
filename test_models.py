@@ -421,6 +421,13 @@ def main():
     # New argument for detailed information about model structure
     parser.add_argument("--verbose", action="store_true",
                         help="Print detailed information about the model and results")
+    # Add validation mode options
+    parser.add_argument("--validation_mode", action="store_true",
+                        help="Run in validation mode using files with known ground truth.")
+    parser.add_argument("--validation_folder", type=str,
+                        help="Path to validation dataset folder (when using --validation_mode).")
+    parser.add_argument("--ground_truth_path", type=str,
+                        help="Path to ground truth values JSON file (when using --validation_mode).")
     args = parser.parse_args()
 
     # Print information about the test
@@ -520,6 +527,147 @@ def main():
             print("You may need to run the test with the correct --use_stats setting for this model")
             print("\nExiting test to prevent invalid results.")
             sys.exit(1)
+
+    # Handle validation mode if enabled
+    if args.validation_mode:
+        if not args.validation_folder:
+            print("Error: --validation_folder is required when using --validation_mode")
+            sys.exit(1)
+            
+        print("\nRunning in validation mode...")
+        
+        # Define validation paths
+        inference_dir = os.path.join(args.validation_folder, "inference")
+        metadata_path = os.path.join(args.validation_folder, "validation_metadata.json")
+        
+        # Ensure validation folder structure exists
+        if not os.path.exists(inference_dir) or not os.path.exists(metadata_path):
+            print(f"Error: Validation folder {args.validation_folder} doesn't have the expected structure")
+            print("Make sure to first run prepare_validation_data.py")
+            sys.exit(1)
+            
+        # Load validation metadata
+        try:
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+        except Exception as e:
+            print(f"Error loading validation metadata: {str(e)}")
+            sys.exit(1)
+        
+        # Load the inference files for validation
+        print("Loading validation files...")
+        if args.augmented:
+            df = load_augmented_dataset_from_folder(inference_dir, use_stats=args.use_stats, 
+                                                   new_format=not args.legacy_format)
+        else:
+            df = load_dataset_from_folder(inference_dir)
+            
+        # Preprocess
+        df = preprocess_dataframe(df)
+        df[norm_cols] = scaler.transform(df[norm_cols])
+        
+        # Track files that have been processed
+        processed_files = []
+        predicted_qoe_values = []
+        ground_truth_values = []
+        
+        # Process each file individually
+        print("Running validation inference on individual files...")
+        
+        for file_name in sorted(os.listdir(inference_dir)):
+            if not file_name.endswith('.json'):
+                continue
+                
+            # Skip if not in metadata
+            if file_name not in metadata["files"]:
+                continue
+                
+            # Get ground truth QoE for this file
+            ground_truth = metadata["files"][file_name]["ground_truth_qoe"]
+            
+            # Find this file's data in the dataframe
+            # This assumes the timestamp of the file is part of the filename
+            try:
+                file_ts = file_name.split('.')[0]
+                file_row = df[df['timestamp'].astype(str).str.contains(file_ts)]
+                
+                if len(file_row) == 0:
+                    print(f"  Warning: File {file_name} not found in processed data")
+                    continue
+                    
+                # Create a sequence for this file
+                if args.seq_length > 1:
+                    # Get previous rows to form the sequence
+                    idx = file_row.index[0]
+                    start_idx = max(0, idx - args.seq_length + 1)
+                    
+                    if start_idx + args.seq_length > len(df):
+                        print(f"  Warning: Not enough data for sequence with file {file_name}")
+                        continue
+                        
+                    # Extract sequence
+                    seq_data = df.iloc[start_idx:start_idx + args.seq_length][feature_cols].values
+                    seq_X = np.expand_dims(seq_data, axis=0)  # Add batch dimension
+                else:
+                    # For seq_length=1, just use the current row
+                    seq_X = np.expand_dims(file_row[feature_cols].values, axis=0)
+                
+                # Predict QoE
+                predicted_qoe_scaled = model.predict(seq_X, verbose=0)
+                
+                # Inverse transform to get the actual QoE value
+                dummy_array = np.zeros((1, len(norm_cols)))
+                dummy_array[0, -1] = predicted_qoe_scaled[0, 0]
+                inverted = scaler.inverse_transform(dummy_array)
+                predicted_qoe = inverted[0, -1]
+                
+                # Store results
+                processed_files.append(file_name)
+                predicted_qoe_values.append(predicted_qoe)
+                ground_truth_values.append(ground_truth)
+                
+            except Exception as e:
+                print(f"  Error processing validation file {file_name}: {str(e)}")
+        
+        # Calculate validation metrics
+        if len(processed_files) > 0:
+            print(f"\nValidation completed on {len(processed_files)} files")
+            
+            val_mse = mean_squared_error(ground_truth_values, predicted_qoe_values)
+            val_rmse = np.sqrt(val_mse)
+            val_mae = mean_absolute_error(ground_truth_values, predicted_qoe_values)
+            val_r2 = r2_score(ground_truth_values, predicted_qoe_values)
+            
+            print("\nValidation Metrics:")
+            print(f"Mean Squared Error (MSE): {val_mse:.4f}")
+            print(f"Root Mean Squared Error (RMSE): {val_rmse:.4f}")
+            print(f"Mean Absolute Error (MAE): {val_mae:.4f}")
+            print(f"R^2 Score: {val_r2:.4f}")
+            
+            # Calculate and show mean error (bias)
+            mean_error = np.mean(np.array(predicted_qoe_values) - np.array(ground_truth_values))
+            print(f"Mean Error (Bias): {mean_error:.4f}")
+            
+            # Save validation results to a CSV file
+            results_dir = os.path.dirname(args.model_file)
+            if not results_dir:
+                results_dir = '.'
+                
+            validation_csv = os.path.join(results_dir, f"validation_{os.path.basename(args.model_file)}.csv")
+            
+            with open(validation_csv, 'w') as f:
+                f.write("file,ground_truth,prediction,error\n")
+                for i, file_name in enumerate(processed_files):
+                    error = predicted_qoe_values[i] - ground_truth_values[i]
+                    f.write(f"{file_name},{ground_truth_values[i]},{predicted_qoe_values[i]},{error}\n")
+            
+            print(f"\nDetailed validation results saved to {validation_csv}")
+            
+        else:
+            print("No valid files processed in validation mode")
+            
+        # Return early if in validation mode
+        return
 
     # Evaluate the model on the test set.
     print("\nEvaluating model...")
