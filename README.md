@@ -65,8 +65,10 @@ The repository is organized as follows:
 ├── experiment_runner.py              # Experiment driver for standard dataset experiments  
 ├── experiment_runner_v2.py           # Enhanced experiment runner with augmented dataset support  
 ├── generate_mock_dataset.py          # Script to generate synthetic JSON datasets (dataset, inference, augmented)  
+├── prepare_validation_data.py        # Script to create validation dataset pairs (with/without QoE)
 ├── run_inference.py                  # Inference script for new JSON inputs using saved models  
 ├── test_models.py                    # Script for evaluating models and measuring inference latency  
+├── validate_models.py                # Script for controlled validation experiments with ground truth
 ├── timeseries_forecasting_models_v2.py  # Model definitions, training, and hyperparameter tuning (v2)  
 ├── timeseries_forecasting_models_v3.py  # Updated model definitions and training pipeline (v3)  
 ├── timeseries_forecasting_models_v5.py  # Latest model implementations with Linear, DNN, and self-attention models (v5)  
@@ -99,6 +101,15 @@ The repository is organized as follows:
 │   ├── transformer_low_dropout.h5    # Pre-trained Transformer with low dropout  
 │   ├── transformer_with_stats.h5     # Pre-trained Transformer with statistical features  
 │   └── scaler.save                   # Saved scaler for feature normalization  
+├── validation_dataset/                # Folder containing validation dataset pairs
+│   ├── ground_truth/                 # Original files with ground truth QoE values
+│   ├── inference/                    # Files with QoE values removed for validation
+│   └── validation_metadata.json      # Metadata tracking ground truth values
+├── validation_results/                # Folder containing validation outputs
+│   ├── plots/                        # Visualizations of validation results
+│   ├── validation_report.txt         # Comprehensive validation report
+│   ├── validation_summary.csv        # Summary metrics for all validated models
+│   └── model_detailed_results.csv    # Detailed file-by-file predictions
 └── inference_inputs/                 # Folder containing JSON files for inference (e.g., 20250204123000.json)
 
 ## Installation
